@@ -1,21 +1,16 @@
 import java.net.*;
 import java.io.*;
+import java.util.*;
 import java.net.InetAddress;
-
 /**
- * Write a description of class TCPClient here.
+ * Write a description of class CommonFunctions here.
  * 
  * @author (your name) 
  * @version (a version number or a date)
  */
-public class TCPClient
+public class CommonFunctions
 {
-
-    public static void main(String[] args) {
-        checkHosts();
-    }
-    
-    private static String getIPAddress() {
+    public static String getIPAddress() {
         String ip = null;
         
         try {
@@ -29,7 +24,7 @@ public class TCPClient
         return ip;
     }
     
-    private static String getSubnetMask() {
+    public static String getSubnetMask() {
         // http://stackoverflow.com/questions/1221517/how-to-get-subnet-mask-of-local-system-using-java
         
         String subnet = null;
@@ -46,7 +41,7 @@ public class TCPClient
         return subnet;
     }
     
-    private static int getHostNumber() {
+    public static int getHostNumber() {
         int hostNum = 0;
         
         try {
@@ -60,39 +55,4 @@ public class TCPClient
         
         return hostNum;
     }
-
-    
-    public static void checkHosts(){
-       String subnet = getSubnetMask();
-       System.out.println(subnet);
-       int hostNum = getHostNumber();
-       System.out.println(hostNum);
-       
-       //calc 10 before
-       int hostNumBefore = hostNum - 10;
-       if (hostNumBefore < 0) {
-           hostNumBefore = 0;
-       }
-       
-       //calc 10 after
-       int hostNumAfter = hostNum + 10;
-       if (hostNumAfter > 254) {
-           hostNumAfter = 254;
-       }
-       
-       //calculate 10 before, 10 after.
-       int timeout=20;
-       for (int i = hostNumBefore; i < hostNumAfter + 1; i++){
-           String host=subnet + "." + i;
-           try {
-               if (InetAddress.getByName(host).isReachable(timeout)){
-               System.out.println(host + " is reachable");
-            }
-           } catch (Exception e) {
-               System.out.println(host + " is unreachable");
-            }
-           
-       }
-    }
 }
-
