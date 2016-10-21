@@ -1,6 +1,10 @@
 #BlueJ class context
-comment0.params=
-comment0.target=Client()
+comment0.params=socket
+comment0.target=Client(java.net.DatagramSocket)
 comment1.params=
-comment1.target=void\ checkHosts()
-numComments=2
+comment1.target=void\ run()
+comment2.params=
+comment2.target=java.lang.String\ promptUserInput()
+comment3.params=
+comment3.target=void\ checkHosts()
+numComments=4

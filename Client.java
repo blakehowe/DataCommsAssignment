@@ -1,36 +1,43 @@
 import java.net.*;
 import java.io.*;
 import java.util.*;
-import java.net.InetAddress;
 /**
  * Write a description of class Client here.
  * 
  * @author (your name) 
  * @version (a version number or a date)
  */
-public class Client
+public class Client extends Thread
 {
     private DatagramSocket _socket;
     public List<String> _hosts;
-    private int _port = 4000;
     
-    public Client() {
-        try {
-            _socket = new DatagramSocket(_port);
-        }
-        catch (Exception e) {
-            System.out.println("Error creating UDP socket on Port: " + _port);
-            System.exit(1);
-        }
-        finally {
-            _hosts = new ArrayList<String>();
-            checkHosts();
-            System.out.println(_hosts);
-        }
-        
+    public Client(DatagramSocket socket) {
+        _socket = socket;
+        _hosts = new ArrayList<String>();
+        checkHosts();
+        System.out.println(_hosts);
     }
     
-    public void checkHosts(){
+    public void run() {
+        while(true) {
+            //get a message to send from the user.
+            String messageToSend = promptUserInput();
+        }    
+    }
+    
+    public String promptUserInput() {
+            // prompts user that they can send a message
+            System.out.print("\n"+CommonFunctions.getIPAddress()+": Enter message" + " => ");
+            Scanner scanner = new Scanner(System.in);
+            String message = scanner.nextLine();
+            
+            return message;
+    }
+    
+    public void checkHosts() {
+       List<String> newHosts = new ArrayList<String>();
+       
        String subnet = CommonFunctions.getSubnetMask();
        //System.out.println(subnet);
        int hostNum = CommonFunctions.getHostNumber();
@@ -56,14 +63,18 @@ public class Client
            String host=subnet + "." + i;
            //System.out.println(host);
            try {
-               if (InetAddress.getByName(host).isReachable(timeout)){
+            if (InetAddress.getByName(host).isReachable(timeout)){
                //System.out.println(host + " is reachable");
-               _hosts.add(host);
+               
+               //TODO: VALIDATE HOST IS USING THE SAME APPLICATION? UNIQUE STRING?
+               newHosts.add(host);
             }
            } catch (Exception e) {
                System.out.println(host + " is unreachable");
-            }
+           }
            
        }
+       
+       _hosts = newHosts;
     }
 }
