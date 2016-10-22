@@ -7,45 +7,51 @@ import java.io.*;
  * @version (a version number or a date)
  */     
      
-public class TCPServer extends Thread {  
-    int port;
+public class FileServer extends Thread {  
+
+    private ServerSocket _tcpServerSocket;
     int bytesRead; 
+
+    public FileServer(ServerSocket socket) {
+        _tcpServerSocket = socket;
+    }
     
-    {
-        System.out.println("Server has started.");   
-   
-        ServerSocket serverSocket = null;  
-        serverSocket = new ServerSocket(port);  
-         
-        while(true) {  
-            Socket clientSocket = null;  
-            clientSocket = serverSocket.accept();  //checks for client connection and accepts it
+    public void run() {
+        try {
+            while(true) {  
+                Socket clientSocket = null;  
+                clientSocket = _tcpServerSocket.accept();  //checks for client connection and accepts it
 
-            //send this socket to the other thread
+                //send this socket to the other thread
            
-            InputStream in = clientSocket.getInputStream();  
+                InputStream in = clientSocket.getInputStream();  
            
-            DataInputStream clientData = new DataInputStream(in);   
+                DataInputStream clientData = new DataInputStream(in);   
            
-            String fileName = clientData.readUTF();
-            //creates output stream and passes in command line argument 'fileName'    
-            OutputStream output = new FileOutputStream(fileName);     
-            long size = clientData.readLong();
-            //creates array of byte to send data to the server  
-            byte[] buffer = new byte[1024];
-            //checks that the byte size is more than 0. If it equals 0, end the write of the file.     
-            while (size > 0 && (bytesRead = clientData.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1)  
-            {     
-                output.write(buffer, 0, bytesRead);     
-                size -= bytesRead;     
-            }  
+                String fileName = clientData.readUTF();
+                //creates output stream and passes in command line argument 'fileName'    
+                OutputStream output = new FileOutputStream(fileName);     
+                long size = clientData.readLong();
+                //creates array of byte to send data to the server  
+                byte[] buffer = new byte[1024];
+                //checks that the byte size is more than 0. If it equals 0, end the write of the file.     
+                while (size > 0 && (bytesRead = clientData.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1)  
+                {     
+                    output.write(buffer, 0, bytesRead);     
+                    size -= bytesRead;     
+                }  
         
-            System.out.println("Transfer successfully completed.");
+                System.out.println("Transfer successfully completed.");
 
-            // Closing the FileOutputStream handle
-            in.close();
-            clientData.close();
-            output.close();  
+                // Closing the FileOutputStream handle
+                in.close();
+                clientData.close();
+                output.close(); 
+            }
+        }
+        catch(Exception e) 
+        {
+            System.out.println("Server unable to receive file.");
         }  
     }
-} 
+}
