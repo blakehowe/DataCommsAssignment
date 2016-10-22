@@ -7,16 +7,15 @@ import java.io.*;
  * @version (a version number or a date)
  */     
      
-public class TCPServer extends Thread {  
+public class FileServer extends Thread {  
     int port;
     int bytesRead; 
+
+    public FileServer(ServerSocket socket) {
+        _tcpServerSocket = socket;
+    }
     
-    {
-        System.out.println("Server has started.");   
-   
-        ServerSocket serverSocket = null;  
-        serverSocket = new ServerSocket(port);  
-         
+    public void run() {
         while(true) {  
             Socket clientSocket = null;  
             clientSocket = serverSocket.accept();  //checks for client connection and accepts it

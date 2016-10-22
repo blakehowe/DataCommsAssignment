@@ -1,4 +1,7 @@
 import java.net.DatagramSocket;
+import java.net.*;
+import java.io.*;
+import java.util.*;
 /**
  * Write a description of class Program here.
  * 
@@ -25,7 +28,23 @@ public class Program
            System.exit(1);
        }
        
-       
-       
+       //file sender and receiver initialisation
+       try {
+       		ServerSocket tcpServerSocket = new ServerSocket(port);
+            FileServer fileserver = new FileServer(tcpServerSocket);
+            fileserver.start();
+
+            System.out.println("Server started.");
+
+            Socket tcpSocket = new Socket(port);
+            FileSender filesender = new FileSender(tcpsocket);
+            filesender.start();
+
+            System.out.println("Client started.");
+       } 
+       catch (Exception e) {
+            System.err.println("Port already in use.");
+            System.exit(1);
+       }
     }
 }

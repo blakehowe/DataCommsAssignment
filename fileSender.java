@@ -7,10 +7,14 @@ import java.io.*;
  * @version (a version number or a date)
  */
    
-public class TCPClient extends Thread {  
+public class FileSender extends Thread {  
     String file;
+
+    public FileSender(Socket socket) {
+        _tcpSocket = socket;
+    }
 	
-    {
+    public void run () {
    		//Send file  
         File myFile = new File(file);  
         //creates an array of byte to store the file which will be sent in the data output stream.
