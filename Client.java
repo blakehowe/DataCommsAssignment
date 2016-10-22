@@ -1,6 +1,7 @@
 import java.net.*;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.locks.*;
 /**
  * Write a description of class Client here.
  * 
@@ -23,15 +24,18 @@ public class Client extends Thread
     }
     
     private void sendMessage(String address, String message) {
+        //append so server knows how to handle.
+        message = "msg:" + message;
         //convert the message string into bytes to be transferred with the datagram.
         byte[] messageBytes = message.getBytes();
-        
-        try {
+        if (message.trim() != "") {
+            try {
             DatagramPacket packet = new DatagramPacket(messageBytes, messageBytes.length, InetAddress.getByName(address), 4000);
             
             _socket.send(packet);
-        } catch (Exception e) {
-            System.err.println("Error: Unable to send message to - " + address);
+            } catch (Exception e) {
+                System.err.println("Error: Unable to send message to - " + address);
+            }
         }
     }
     
@@ -43,21 +47,24 @@ public class Client extends Thread
     }
     
     public void run() {
-        while(true) {
-            //get a message to send from the user.
-            String messageToSend = promptUserInput();
+        while (true) {
+            //promptUserInput();
             
-            broadcastMessage(messageToSend);
-        }    
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            String message = "";
+            try {
+                message = reader.readLine();
+                broadcastMessage(message);
+            }
+            catch (IOException e) {
+                System.err.println("Commandline input error, try again?");
+            }
+        }
     }
     
-    public static String promptUserInput() {
-            // prompts user that they can send a message
-            System.out.print("\n"+CommonFunctions.getIPAddress()+": Enter message" + " => ");
-            Scanner scanner = new Scanner(System.in);
-            String message = scanner.nextLine();
-            
-            return message;
+    public void promptUserInput() {
+        // prompts user that they can send a message
+            System.out.print("\n"+CommonFunctions.getIPAddress()+": ");
     }
     
     public void checkHosts() {
@@ -80,23 +87,11 @@ public class Client extends Thread
            hostNumAfter = 254;
        }
        
-       //try reaching the hosts within the range using pings
-       for (int i = hostNumBefore; i < hostNumAfter + 1; i++){
-           String host=subnet + "." + i;
-           try {
-               if (isReachable(host)) {
-                   System.out.println(host + " is reachable");
-                   newHosts.add(host);
-               }
-           }
-           catch(Exception e) {
-               System.out.println(host + " is unreachable");
-           }
-       }
        
-       /*
+       
+       
        //try reaching the hosts within the range using isReachable
-       int timeout=3000;
+       int timeout=100;
        for (int i = hostNumBefore; i < hostNumAfter + 1; i++){
            String host=subnet + "." + i;
            //System.out.println(host);
@@ -113,16 +108,8 @@ public class Client extends Thread
            
        }
        
-       */
+       
        
        _hosts = newHosts;
     }
-    
-    //http://stackoverflow.com/questions/18321118/best-alternative-for-inetaddress-getbynamehost-isreachabletimeout
-    public boolean isReachable(String hostname) throws IOException, InterruptedException {
-    Process p = Runtime.getRuntime().exec(
-            "cmd /C ping -n 1 "+hostname+" | find \"TTL\""
-    );
-    return (p.waitFor() == 0);
-}
 }

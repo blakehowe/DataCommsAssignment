@@ -1,4 +1,5 @@
 import java.net.DatagramSocket;
+import java.util.concurrent.locks.*;
 /**
  * Write a description of class Program here.
  * 
@@ -7,25 +8,27 @@ import java.net.DatagramSocket;
  */
 public class Program
 {
-    static int port = 4000;
+    static int defaultPort = 4000;
     
     public static void main(String[] args) {
-       try {
+       int port = defaultPort;
+        try {
+           if (args.length > 1) {
+               port = Integer.parseInt(args[0]);
+           }
+           
+           //helps keep the readline and println synchronised in console.
+           Lock lock = new ReentrantLock();
+           
            DatagramSocket udpSocket = new DatagramSocket(port);
-       
-           Server server = new Server(udpSocket);
-           
-           server.start();
            Client client = new Client(udpSocket);
-           
+           Server server = new Server(udpSocket, client);
+           server.start();
            client.start();
        }
        catch (Exception e) {
            System.out.println("Error creating UDP socket on Port: " + port);
            System.exit(1);
        }
-       
-       
-       
     }
 }

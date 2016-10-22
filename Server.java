@@ -1,6 +1,6 @@
 import java.io.IOException;
 import java.net.*;
-
+import java.util.concurrent.locks.*;
 /**
  * Write a description of class Server here.
  * 
@@ -10,10 +10,13 @@ import java.net.*;
  */
 public class Server extends Thread
 {
+    private String auth = "249284222424gerggre23235tijo";
     private DatagramSocket _udpSocket;
+    private Client _client;
     
-    public Server(DatagramSocket socket) {
+    public Server(DatagramSocket socket, Client client) {
         _udpSocket = socket;
+        _client = client;
     }
     
     public void run() {
@@ -24,6 +27,7 @@ public class Server extends Thread
         String messageString;
         
         while(true) {
+            _client.promptUserInput();
             packet = new DatagramPacket(recievedBytes, recievedBytes.length);
             
             try {
@@ -33,17 +37,31 @@ public class Server extends Thread
                 InetAddress address = packet.getAddress();
                 int port = packet.getPort();
                 
-                messageString = new String(packet.getData());
+                //only print if not recieved from same ip
+                if (!address.getHostAddress().equals(CommonFunctions.getIPAddress())) {
+                    messageString = new String(packet.getData());
                 
-                messageString = messageString.trim();
-                
-                System.out.print("\n"+address.toString()+" says: " + messageString);
-                
+                    messageString = messageString.trim();
+                    
+                    //handle recieved message accordingly
+                    if (messageString.startsWith("msg:")) {
+                        //remove prefix
+                        messageString = messageString.replace("msg:", "");
+                        //chat message
+                        System.out.print("\n"+address.getHostName()+" ("+address.getHostAddress()+")"+" says: " + messageString);
+                    }
+                    else if (messageString.equals("authenticate:"+auth)) {
+                        //user wants to authenticate with this server 
+                        
+                        //respond to the user to let them know they are verified?
+                    }
+                }
                 //clear recievedBytes
                 recievedBytes = new byte[1024];
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            
             
         }
     }
