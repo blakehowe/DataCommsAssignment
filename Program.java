@@ -13,9 +13,9 @@ public class Program
        try {
            DatagramSocket udpSocket = new DatagramSocket(port);
        
-           //Server server = new Server(udpSocket);
+           Server server = new Server(udpSocket);
            
-           //server.start();
+           server.start();
            Client client = new Client(udpSocket);
            
            client.start();
