@@ -6,6 +6,7 @@ import java.net.*;
  * 
  * @author (your name) 
  * @version (a version number or a date)
+ * Message Reciever
  */
 public class Server extends Thread
 {
@@ -34,7 +35,9 @@ public class Server extends Thread
                 
                 messageString = new String(packet.getData());
                 
-                System.out.print("\nServer Recieved: " + messageString);
+                messageString = messageString.trim();
+                
+                System.out.print("\n"+address.toString()+" says: " + messageString);
                 
                 //clear recievedBytes
                 recievedBytes = new byte[1024];
