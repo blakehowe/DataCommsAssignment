@@ -2,7 +2,9 @@
 comment0.params=
 comment0.target=java.lang.String\ getIPAddress()
 comment1.params=
-comment1.target=java.lang.String\ getSubnetMask()
+comment1.target=java.lang.String\ getHostName()
 comment2.params=
-comment2.target=int\ getHostNumber()
-numComments=3
+comment2.target=java.lang.String\ getSubnetMask()
+comment3.params=
+comment3.target=int\ getHostNumber()
+numComments=4

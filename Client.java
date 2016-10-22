@@ -19,8 +19,6 @@ public class Client extends Thread
     public Client(DatagramSocket socket) {
         _socket = socket;
         _hosts = new ArrayList<String>();
-        checkHosts();
-        System.out.println(_hosts);
     }
     
     private void sendMessage(String address, String message) {
@@ -30,7 +28,7 @@ public class Client extends Thread
         byte[] messageBytes = message.getBytes();
         if (message.trim() != "") {
             try {
-            DatagramPacket packet = new DatagramPacket(messageBytes, messageBytes.length, InetAddress.getByName(address), 4000);
+            DatagramPacket packet = new DatagramPacket(messageBytes, messageBytes.length, InetAddress.getByName(address), _socket.getLocalPort());
             
             _socket.send(packet);
             } catch (Exception e) {
@@ -64,52 +62,6 @@ public class Client extends Thread
     
     public void promptUserInput() {
         // prompts user that they can send a message
-            System.out.print("\n"+CommonFunctions.getIPAddress()+": ");
-    }
-    
-    public void checkHosts() {
-       List<String> newHosts = new ArrayList<String>();
-       
-       String subnet = CommonFunctions.getSubnetMask();
-       //System.out.println(subnet);
-       int hostNum = CommonFunctions.getHostNumber();
-       //System.out.println(hostNum);
-       
-       //calc 10 before
-       int hostNumBefore = hostNum - 10;
-       if (hostNumBefore < 0) {
-           hostNumBefore = 0;
-       }
-       
-       //calc 10 after
-       int hostNumAfter = hostNum + 10;
-       if (hostNumAfter > 254) {
-           hostNumAfter = 254;
-       }
-       
-       
-       
-       
-       //try reaching the hosts within the range using isReachable
-       int timeout=100;
-       for (int i = hostNumBefore; i < hostNumAfter + 1; i++){
-           String host=subnet + "." + i;
-           //System.out.println(host);
-           try {
-            if (InetAddress.getByName(host).isReachable(timeout)){
-               //System.out.println(host + " is reachable");
-               
-               //TODO: VALIDATE HOST IS USING THE SAME APPLICATION? UNIQUE STRING?
-               newHosts.add(host);
-            }
-           } catch (Exception e) {
-               System.out.println(host + " is unreachable");
-           }
-           
-       }
-       
-       
-       
-       _hosts = newHosts;
+            System.out.print("\n"+CommonFunctions.getHostName()+" ("+CommonFunctions.getIPAddress()+")"+": ");
     }
 }

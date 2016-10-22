@@ -24,6 +24,20 @@ public class CommonFunctions
         return ip;
     }
     
+    public static String getHostName() {
+        String name = null;
+        
+        try {
+            InetAddress me = InetAddress.getLocalHost();
+            name = me.getHostName();
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+        }
+        
+        return name;
+    }
+    
     public static String getSubnetMask() {
         // http://stackoverflow.com/questions/1221517/how-to-get-subnet-mask-of-local-system-using-java
         
