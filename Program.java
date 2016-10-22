@@ -11,6 +11,9 @@ import java.util.*;
 public class Program
 {
     static int port = 4000;
+    static int tcpport = 4001;
+
+    static String inetAddress = "127.0.0.1"; 
     
     public static void main(String[] args) {
        try {
@@ -30,14 +33,14 @@ public class Program
        
        //file sender and receiver initialisation
        try {
-       		ServerSocket tcpServerSocket = new ServerSocket(port);
+       		ServerSocket tcpServerSocket = new ServerSocket(tcpport);
             FileServer fileserver = new FileServer(tcpServerSocket);
             fileserver.start();
 
-            System.out.println("Server started.");
+            System.out.println('\n' + "Server started.");
 
-            Socket tcpSocket = new Socket(port);
-            FileSender filesender = new FileSender(tcpsocket);
+       		Socket tcpSocket = new Socket(inetAddress, tcpport);
+            FileSender filesender = new FileSender(tcpSocket);
             filesender.start();
 
             System.out.println("Client started.");
