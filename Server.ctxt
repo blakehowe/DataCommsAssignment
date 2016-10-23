@@ -1,6 +1,6 @@
 #BlueJ class context
-comment0.params=socket\ client\ auth
-comment0.target=Server(java.net.DatagramSocket,\ Client,\ java.lang.String)
+comment0.params=socket\ client\ auth\ userPool
+comment0.target=Server(java.net.DatagramSocket,\ Client,\ java.lang.String,\ ChatUserPool)
 comment1.params=
 comment1.target=void\ run()
 comment2.params=host\ response

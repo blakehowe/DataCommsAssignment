@@ -1,12 +1,14 @@
 #BlueJ class context
-comment0.params=socket
-comment0.target=Client(java.net.DatagramSocket)
+comment0.params=socket\ userPool
+comment0.target=Client(java.net.DatagramSocket,\ ChatUserPool)
 comment1.params=address\ message
 comment1.target=void\ sendMessage(java.lang.String,\ java.lang.String)
 comment2.params=message
 comment2.target=void\ broadcastMessage(java.lang.String)
 comment3.params=
-comment3.target=void\ run()
+comment3.target=void\ leaveChat()
 comment4.params=
-comment4.target=void\ promptUserInput()
-numComments=5
+comment4.target=void\ run()
+comment5.params=
+comment5.target=void\ promptUserInput()
+numComments=6

@@ -22,11 +22,23 @@ public class ChatUserPool extends Thread
        _socket = socket;
        
        updateList();
-       printValidHosts();
+   }
+   
+   public List<String> validHosts() {
+       return _validHosts;
    }
    
    public void printValidHosts() {
-       System.out.println("Valid Hosts: " + _validHosts);
+       if (_validHosts.size() > 0) {
+           System.out.println("You have joined a chat room with the following hosts:");
+           for (String host : _validHosts) {
+           System.out.println("   > " + host);
+           }
+       } else {
+           System.out.println("> You are lonely in this chat room :-( < ");
+           System.out.println(">> Hold tight, someone may join you << ");
+       }
+       
    }
    
    public void run() {
@@ -40,7 +52,44 @@ public class ChatUserPool extends Thread
        }
    }
    
+   public Boolean addAuthenticatedUser(String host) {
+       //manual add a host to the validHosts list
+       //used for the Server when it recieves an authenticate request and it gets accepted to add the user
+       
+       Boolean result = false;
+       
+       //check to make sure _validHosts does not already have the host....
+       if (!_validHosts.contains(host)) {
+           //add the user to validHosts.
+           _validHosts.add(host);
+           
+           //set result
+           result = true;
+       }
+       
+       return result;
+   }
+   
+   public Boolean removeAuthenticatedUser(String host) {
+       //manual add a host to the validHosts list
+       //used for the Server when it recieves an authenticate request and it gets accepted to add the user
+       
+       Boolean result = false;
+       
+       //check to make sure _validHosts does not already have the host....
+       if (_validHosts.contains(host)) {
+           //add the user to validHosts.
+           _validHosts.remove(host);
+           
+           //set result
+           result = true;
+       }
+       
+       return result;
+   }
+   
    private Boolean authenticateUser(String hostAddress) {
+       //Used for a Client when discovering the network, this will work out if a host is a valid chat recipient
        //http://stackoverflow.com/questions/12363078/adding-timeout-to-datagramsocket-receive
        if (hostAddress.equals(CommonFunctions.getIPAddress())) {
            return false;
@@ -108,10 +157,10 @@ public class ChatUserPool extends Thread
                if (authenticateUser(host)) {
                 //authenticated, add to validHosts list
                 validHosts.add(host);
-                System.out.println("Authenticated by "+host);
+                //System.out.println("Authenticated by "+host);
                 } else {
                     //didn't authenticate
-                    System.out.println("Unable to authenticate with "+host);
+                    //System.out.println("Unable to authenticate with "+host);
                 }
            }
        }
