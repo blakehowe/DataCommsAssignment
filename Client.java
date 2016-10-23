@@ -13,17 +13,23 @@ public class Client extends Thread
 {
     //send messages
     private DatagramSocket _socket;
-    public List<String> _hosts;
-    private int _port;
+    private ChatUserPool _userPool;
     
-    public Client(DatagramSocket socket) {
+    public Client(DatagramSocket socket, ChatUserPool userPool) {
         _socket = socket;
-        _hosts = new ArrayList<String>();
+        _userPool = userPool;
     }
+    
+    
     
     private void sendMessage(String address, String message) {
         //append so server knows how to handle.
-        message = "msg:" + message;
+        if (!message.equals("<BYE>")) {
+            if (!message.equals("<LEFTCHAT>")) {
+                message = "msg:" + message;
+            }
+        }
+        
         //convert the message string into bytes to be transferred with the datagram.
         byte[] messageBytes = message.getBytes();
         if (message.trim() != "") {
@@ -35,24 +41,47 @@ public class Client extends Thread
                 System.err.println("Error: Unable to send message to - " + address);
             }
         }
+        
+        
     }
     
     private void broadcastMessage(String message) {
         //send the message to each known host.
-        for (String host : _hosts) {
+        for (String host : _userPool.validHosts()) {
             sendMessage(host, message);
         }
+        
+        if (message.equals("<BYE>")) {
+            //close the application
+            System.err.println("You have left the chat room");
+            
+            //shutdown hook should do its job of letting users know
+            
+            System.exit(0);
+        }
+        
+    }
+    
+    public void leaveChat() {
+        broadcastMessage("<LEFTCHAT>");
     }
     
     public void run() {
         while (true) {
+            // http://stackoverflow.com/questions/12999899/getting-user-input-with-scanner
             //promptUserInput();
             
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             String message = "";
             try {
+                promptUserInput();
                 message = reader.readLine();
-                broadcastMessage(message);
+                if (!message.equals("<HOSTS>")) {
+                    broadcastMessage(message);
+                }
+                else {
+                    _userPool.printValidHosts();
+                }
             }
             catch (IOException e) {
                 System.err.println("Commandline input error, try again?");
@@ -62,6 +91,6 @@ public class Client extends Thread
     
     public void promptUserInput() {
         // prompts user that they can send a message
-            System.out.print("\n"+CommonFunctions.getHostName()+" ("+CommonFunctions.getIPAddress()+")"+": ");
+        System.out.print("\n"+CommonFunctions.getHostName()+" ("+CommonFunctions.getIPAddress()+")"+": ");
     }
 }

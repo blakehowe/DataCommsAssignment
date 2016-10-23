@@ -10,14 +10,17 @@ import java.util.concurrent.locks.*;
  */
 public class Server extends Thread
 {
-    private String _serverAuthCode;
+    
     private DatagramSocket _udpSocket;
     private Client _client;
+    private String _serverAuthCode;
+    private ChatUserPool _userPool;
     
-    public Server(DatagramSocket socket, Client client, String auth) {
+    public Server(DatagramSocket socket, Client client, String auth, ChatUserPool userPool) {
         _udpSocket = socket;
         _client = client;
         _serverAuthCode = auth;
+        _userPool = userPool;
     }
     
     public void run() {
@@ -28,6 +31,8 @@ public class Server extends Thread
         String messageString;
         
         while(true) {
+            
+            
             //wait until client thread is alive before continuing
             while (!_client.isAlive()) {
                 try {
@@ -37,9 +42,12 @@ public class Server extends Thread
                     //thread has been interrupted
                     System.out.println("Warning: Unexpected behaviour has occurred running the server.");
                 }
+                finally {
+                    System.out.println("\n--- Waiting for client process to start --- \n");
+                }
             }
             
-            _client.promptUserInput();
+            
             
             packet = new DatagramPacket(recievedBytes, recievedBytes.length);
             
@@ -66,20 +74,32 @@ public class Server extends Thread
                         messageString = messageString.replace("msg:", "");
                         
                         if (messageString.equals("null")) {
-                            //peer left the chat without saying goodbye
-                            System.out.println("\n\n"+address.getHostName()+" ("+address.getHostAddress()+")"+" left the chat without saying bye :-(");
-                            
-                            //remove from peer pool
+                            //is recieved when the socket closes on the clients end without notice?
                         }
                         else {
                             //chat message
                             System.out.println("\n\n"+address.getHostName()+" ("+address.getHostAddress()+")"+" says: " + messageString);
                         }
+                        _client.promptUserInput();
                         
+                    }
+                    else if (messageString.equals("<LEFTCHAT>")) {
+                        //peer left the chat
+                        System.out.println("\n"+address.getHostName()+" ("+address.getHostAddress()+")"+" left the chat room");
+                        
+                        //remove from peer pool
+                        _userPool.removeAuthenticatedUser(address.getHostAddress());
+                        
+                        _client.promptUserInput();
+                    }
+                    else if (messageString.equals("<BYE>")) {
+                        //the user has said goodbye
+                        //peer is saying goodbye
+                        System.out.println("\n\n"+address.getHostName()+" ("+address.getHostAddress()+")"+" was nice enough to say goodbye before leaving");
                     }
                     else if (messageString.startsWith("authenticate:")) {
                         //user is attempting to authenticate with this chat server 
-                        System.out.println("\n\n"+address.getHostName()+" ("+address.getHostAddress()+")"+" attempting to authenticate");
+                        //System.out.println("\n\n"+address.getHostName()+" ("+address.getHostAddress()+")"+" attempting to authenticate");
                         
                         //check if they passed the right authentication key
                         //respond to the user to let them know if they passed or failed authentication.
@@ -88,16 +108,19 @@ public class Server extends Thread
                             System.out.println("\n\n"+address.getHostName()+" ("+address.getHostAddress()+")"+" has joined the chat room");
                             
                             //add the user to this servers verified hosts list, however make sure they are not already in the verified users first?
+                            if (!_userPool.addAuthenticatedUser(address.getHostAddress())) {
+                                //user was already in valid hosts
+                            }
                             
-                            //respond to the server letting them know they were accepted
-                            //use prefix authenticateResponse:true
                             sendAuthResponse(address.getHostAddress(), 1);
                         }
                         else {
                             //the user attempted to authenticate but failed to pass the correct auth key
                             //using message authenticateResponse:false
+                            
                             sendAuthResponse(address.getHostAddress(), 0);
                         }
+                        _client.promptUserInput();
                     }
                     else {
                         //a string has been recieved that is not recognised therefore cannot be handled correctly.
@@ -107,7 +130,13 @@ public class Server extends Thread
                 }
                 //clear recievedBytes
                 recievedBytes = new byte[1024];
-            } catch (Exception e) {
+            }
+            catch (SocketException e) {
+                //socket was closed while waiting to recieve
+                //break while loop
+                break;
+            }
+            catch (Exception e) {
                 e.printStackTrace();
             }
             
