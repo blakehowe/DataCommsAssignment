@@ -8,46 +8,87 @@ import java.io.*;
  */
    
 public class FileSender extends Thread {  
+    
+    private static int _timeout = 3000;
+    private String _ip;
+    private int _tcpPort;
+    private String _filename;
 
-    public Socket _tcpSocket;
-    String file = "SnakeRiver";
-
-    public FileSender(Socket socket) {
-        _tcpSocket = socket;
+    public FileSender(String ip, int tcpPort, String filename) {
+        _ip = ip;
+        _tcpPort = tcpPort;
+        _filename = filename;
     }
 
     public void run () {
         SendFile();
     }
-
+    
+    private static Boolean doesFileExist(String fileName) {
+        //http://alvinalexander.com/java/java-file-exists-directory-exists
+        File file = new File(fileName);
+        return file.exists();
+    }
+    
+    
     public void SendFile () {
+        //http://www.java2s.com/Code/Java/Network-Protocol/StringbasedcommunicationbetweenSocket.htm
+        //https://coderanch.com/t/556838/java/java/Transferring-file-file-data-socket
+        //http://stackoverflow.com/questions/4969760/set-timeout-for-socket
+        
+        //check whether the file exists or not
+        if (!doesFileExist(_filename)) {
+            System.out.println("Cannot file transfer to host: " + _ip + "; unable to locate file");
+            return;
+        }
+        
         try {
-           //Send file  
-            File myFile = new File(file);  
-            //creates an array of byte to store the file which will be sent in the data output stream.
-            byte[] mybytearray = new byte[(int) myFile.length()];  
-            FileInputStream fis = new FileInputStream(myFile);  
-            BufferedInputStream bis = new BufferedInputStream(fis);    
-            //creates a data input stream with the buffered input stream wrapped in it
-            DataInputStream dis = new DataInputStream(bis);     
-            dis.readFully(mybytearray, 0, mybytearray.length);  
-           
-            OutputStream os = _tcpSocket.getOutputStream();  
-           
-            //Sending file name, size and data to the server  
-            DataOutputStream dos = new DataOutputStream(os);     
-            dos.writeUTF(myFile.getName());     
-            dos.writeLong(mybytearray.length);     
-            dos.write(mybytearray, 0, mybytearray.length);     
-            dos.flush();
-            //Closes streams and socket.
-            os.close();
-            dos.close();  
-            _tcpSocket.close(); 
-        }  
-        catch(Exception e)
+                //open the socket to the client
+                Socket socket = new Socket();
+                socket.connect(new InetSocketAddress(_ip, _tcpPort), _timeout);
+            
+                System.out.println("\n\nSending file: " + _filename + " to " + _ip + "\n");
+                Client.promptUserInput();
+                //send the filename to the client
+                //can get name from the file object?
+
+                //send the file requested to the client
+                File fileData = new File(_filename);
+                byte[] databytearray = new byte[(int) fileData.length()];
+
+                FileInputStream fis = new FileInputStream(fileData);
+                BufferedInputStream bis = new BufferedInputStream(fis);
+                bis.read(databytearray, 0, databytearray.length);
+                
+                //outputstream that goes to the client
+                DataOutputStream toClient = new DataOutputStream(socket.getOutputStream());
+                
+                //give the filename to client
+                toClient.writeUTF(_filename);
+                
+                //write the data to the output stream
+                toClient.write(databytearray, 0, databytearray.length);
+                
+                //flush data on the stream to client
+                toClient.flush();   
+                
+                System.out.println("\n\n" + _ip + " has been sent: " + _filename + "\n");
+                Client.promptUserInput();
+                
+                //close the socket.
+                socket.close();
+        }
+        catch (SocketTimeoutException ex)
         {
-            System.out.println("Error sending file");
-        } 
+            //the connection timed out.
+            System.err.println("\n\nFile transfer connection to " + _ip + " has timed out\n");
+            Client.promptUserInput();
+        }
+        catch (IOException ex)
+        {
+            //unknown error with connection to client
+            System.err.println("\n\nUnknown error transferring file to " + _ip + "\n");
+            Client.promptUserInput();
+        }
     }
 }

@@ -14,10 +14,12 @@ public class Client extends Thread
     //send messages
     private DatagramSocket _socket;
     private ChatUserPool _userPool;
+    private int _fileTransferPort;
     
-    public Client(DatagramSocket socket, ChatUserPool userPool) {
+    public Client(DatagramSocket socket, ChatUserPool userPool, int tcpPort) {
         _socket = socket;
         _userPool = userPool;
+        _fileTransferPort = tcpPort;
     }
     
     
@@ -61,10 +63,9 @@ public class Client extends Thread
         
         if (message.equals("<BYE>")) {
             //close the application
-            System.err.println("You have left the chat room");
+            System.out.println("You have left the chat room");
             
             //shutdown hook should do its job of letting users know its leaving
-            
             System.exit(0);
         }
         
@@ -98,6 +99,36 @@ public class Client extends Thread
         }
     }
     
+    private void sendFile(String message) {
+        //remove arrows in the message
+        String toSplit = message.replace("<", "");
+        toSplit = toSplit.replace(">", "");
+        
+        //split up the string so can extract needed info
+        String[] splitted = toSplit.split(",",3);
+        //make sure correct parameters.
+        if (splitted.length == 3) {
+            String ip = splitted[1];
+            String filename = splitted[2];
+            
+            //check if ip is authenticated?
+            if (_userPool.isAuthenticatedUser(ip)) {
+                //pass ip and filename to file sender class.
+                FileSender filesender = new FileSender(ip, _fileTransferPort, filename);
+                
+                //start sending the file asynchronously.
+                filesender.start();
+            }
+            else {
+                System.out.println("Cannot file transfer to unrecognised host: " + ip);
+            }
+        }
+        else {
+            //invalid format
+        }
+        
+    }
+    
     
     public void leaveChat() {
         //let all hosts know you have left the chat.
@@ -117,6 +148,9 @@ public class Client extends Thread
                 if (message.startsWith("@")) {
                     directMessage(message);
                 }
+                if (message.startsWith("<FILE") && message.endsWith(">")) {
+                    sendFile(message);
+                }
                 else if (message.equals("<HOSTS>")) {
                     _userPool.printValidHosts();
                 }
@@ -134,7 +168,7 @@ public class Client extends Thread
         }
     }
     
-    public void promptUserInput() {
+    public static void promptUserInput() {
         // prompts user that they can send a message
         System.out.print("\n"+CommonFunctions.getHostName()+" ("+CommonFunctions.getIPAddress()+")"+": ");
     }

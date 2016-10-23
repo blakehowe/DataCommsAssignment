@@ -47,7 +47,7 @@ public class Program
        System.out.println("== Using Key "+authKey+" for Authentication Security ==");
        
        System.out.println("\n== To view known chat hosts, type '<HOSTS>' ==\n");
-       System.out.println("== To direct message, type in format '@IP Message' ==\n");
+       System.out.println("== To send a file, type '<FILE, ip, fileName>' ==\n");
        System.out.println("== To leave the chat room and exit the program, type '<BYE>' ==\n");
        
        
@@ -65,22 +65,26 @@ public class Program
            
            System.out.println("\nSearching for chat users...\n");
            
-           //create the user pool object, will maintain the users.
+           //create the user pool object, will maintain the users aswell as be used for authentication
            ChatUserPool userPool = new ChatUserPool(100000, authKey, udpSocket);
            
            //manages sending messages from the user
-           Client client = new Client(udpSocket, userPool);
+           Client client = new Client(udpSocket, userPool, tcpport);
            
            
            //manages recieving and co-ordinating recieved messages.
            Server server = new Server(udpSocket, client, authKey, userPool);
            
+           //manages receiving files from other chat peers.
+           FileServer fileServer = new FileServer(tcpport, userPool);
+           
            //let the user know who is already in the chat room, or if they are lonely.
            userPool.printValidHosts();
            
-           //start both the threads.
+           //start all the threads.
            server.start();
            client.start();
+           fileServer.start();
            
            //shutdown hook
            //http://stackoverflow.com/questions/2921945/useful-example-of-a-shutdown-hook-in-java
@@ -102,27 +106,6 @@ public class Program
        catch (Exception e) {
            System.out.println("Error creating UDP socket on Port: " + port);
            System.exit(1);
-       }
-    }
-    
-    private static void fileServerCode() {
-        //file sender and receiver initialisation
-       try {
-            ServerSocket tcpServerSocket = new ServerSocket(tcpport);
-            FileServer fileserver = new FileServer(tcpServerSocket);
-            fileserver.start();
-
-            //System.out.println('\n' + "Server started.");
-
-            Socket tcpSocket = new Socket(inetAddress, tcpport);
-            FileSender filesender = new FileSender(tcpSocket);
-            filesender.start();
-
-            //System.out.println("Client started.");
-       } 
-       catch (Exception e) {
-            System.err.println("Port already in use.");
-            System.exit(1);
        }
     }
 }

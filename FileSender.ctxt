@@ -1,6 +1,10 @@
 #BlueJ class context
-comment0.params=socket
-comment0.target=FileSender(java.net.Socket)
+comment0.params=ip\ tcpPort\ filename
+comment0.target=FileSender(java.lang.String,\ int,\ java.lang.String)
 comment1.params=
 comment1.target=void\ run()
-numComments=2
+comment2.params=fileName
+comment2.target=java.lang.Boolean\ doesFileExist(java.lang.String)
+comment3.params=
+comment3.target=void\ SendFile()
+numComments=4

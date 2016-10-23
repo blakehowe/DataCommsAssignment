@@ -9,53 +9,32 @@ import java.io.*;
      
 public class FileServer extends Thread {  
 
-    public ServerSocket _tcpServerSocket;
-    int bytesRead; 
-
-    public FileServer(ServerSocket socket) {
-        _tcpServerSocket = socket;
+    private int _tcpPort;
+    private ChatUserPool _userPool;
+    
+    public FileServer(int tcpPort, ChatUserPool userPool) {
+        _tcpPort = tcpPort;
+        _userPool = userPool;
     }
 
     public void run() {
-        ReceiveFile();
-    }
-    
-    public void ReceiveFile() {
+        //execute the ReceiveFile method asynchronously.
         try {
-            while(true) {  
-                Socket clientSocket = null;  
-                clientSocket = _tcpServerSocket.accept();  //checks for client connection and accepts it
-
-                //send this socket to the other thread
-           
-                InputStream in = clientSocket.getInputStream();  
-           
-                DataInputStream clientData = new DataInputStream(in);   
-           
-                String fileName = clientData.readUTF();
-                //creates output stream and passes in command line argument 'fileName'    
-                OutputStream output = new FileOutputStream(fileName);     
-                long size = clientData.readLong();
-                //creates array of byte to send data to the server  
-                byte[] buffer = new byte[1024];
-                //checks that the byte size is more than 0. If it equals 0, end the write of the file.     
-                while (size > 0 && (bytesRead = clientData.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1)  
-                {     
-                    output.write(buffer, 0, bytesRead);     
-                    size -= bytesRead;     
-                }  
-        
-                System.out.println("Transfer successfully completed.");
-
-                // Closing the FileOutputStream handle
-                in.close();
-                clientData.close();
-                output.close(); 
+            ServerSocket socket = new ServerSocket(_tcpPort);
+            while (true) {
+                //blocks until a new connection is accepted from server socket.
+                Socket client = socket.accept();
+                if (_userPool.isAuthenticatedUser(client.getInetAddress().getHostAddress())) {
+                    //new thread object.
+                    ReceiveFile receiver = new ReceiveFile(client);
+                    
+                    //start downloading the file asychronously
+                    receiver.start();
+                }
             }
         }
-        catch(Exception e) 
-        {
-            System.out.println("Server unable to receive file.");
+        catch(IOException e){
+            System.err.println("\n\nAn error occured starting the file receiver service, you may be unable to receive files from chat clients\n");
         }
     }
 }
