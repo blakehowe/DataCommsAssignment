@@ -10,6 +10,8 @@ import java.net.*;
 public class ChatUserPool extends Thread
 {
    private List<String> _validHosts;
+   
+   //
    private HashMap<String,String> _nameCache;
    
    //the refresh interval of checking

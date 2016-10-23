@@ -49,10 +49,11 @@ public class ReceiveFile extends Thread
                 //decrypt the file now that is received
                 File toDecrypt = new File("FilesReceived/"+fileName+".encrypted");
                 File decrypted = new File("FilesReceived/"+fileName);
-                FileCryptography.decrypt("Vr itmud Hv zLXN", toDecrypt, decrypted);
+                FileCryptography.decrypt(CommonFunctions.getCryptKey(), toDecrypt, decrypted);
                 
                 //delete encrypted file
-                toDecrypt.delete();
+                //https://www.mkyong.com/java/how-to-delete-file-in-java/
+                new File("FilesReceived/"+fileName+".encrypted").delete();
                 
                 System.out.println("\n\n" + hostName + " (" + ipAddress + ") has sent you a file: " + fileName);
         }

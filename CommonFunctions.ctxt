@@ -1,10 +1,12 @@
 #BlueJ class context
 comment0.params=
-comment0.target=java.lang.String\ getIPAddress()
+comment0.target=java.lang.String\ getCryptKey()
 comment1.params=
-comment1.target=java.lang.String\ getHostName()
+comment1.target=java.lang.String\ getIPAddress()
 comment2.params=
-comment2.target=java.lang.String\ getSubnetMask()
+comment2.target=java.lang.String\ getHostName()
 comment3.params=
-comment3.target=int\ getHostNumber()
-numComments=4
+comment3.target=java.lang.String\ getSubnetMask()
+comment4.params=
+comment4.target=int\ getHostNumber()
+numComments=5

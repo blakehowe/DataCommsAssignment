@@ -46,6 +46,10 @@ public class FileSender extends Thread {
                 //open the socket to the client
                 Socket socket = new Socket();
                 socket.connect(new InetSocketAddress(_ip, _tcpPort), _timeout);
+                
+                //create the directory, as it may not exist.
+                File dir = new File("EncryptedFiles");
+                dir.mkdir();
             
                 System.out.println("\n\nSending file: " + _filename + " to " + _ip + "\n");
                 Client.promptUserInput();
@@ -56,11 +60,11 @@ public class FileSender extends Thread {
                 
                 
                 File toEncrypt = new File(_filename);
-                File fileData = new File(_filename+".encrypted");
+                File fileData = new File("EncryptedFiles/"+_filename+".encrypted");
                 
                 try {
                     //encrypt the file.
-                    FileCryptography.encrypt("Vr itmud Hv zLXN", toEncrypt, fileData);
+                    FileCryptography.encrypt(CommonFunctions.getCryptKey(), toEncrypt, fileData);
                 } catch (FileCryptException ex) {
                     System.out.println(ex.getMessage());
                     ex.printStackTrace();
@@ -89,6 +93,9 @@ public class FileSender extends Thread {
                 
                 //close the socket.
                 socket.close();
+                
+                //delete encrypted file
+                fileData.delete();
         }
         catch (SocketTimeoutException ex)
         {

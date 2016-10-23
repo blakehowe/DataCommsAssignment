@@ -10,6 +10,12 @@ import java.net.InetAddress;
  */
 public class CommonFunctions
 {
+    private static final String KEY = "Vr itmud Hv zLXN";
+    
+    public static String getCryptKey() {
+        return KEY;
+    }
+    
     public static String getIPAddress() {
         String ip = null;
         

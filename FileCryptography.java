@@ -20,7 +20,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class FileCryptography {
     private static final String ALGORITHM = "AES";
     private static final String TRANSFORMATION = "AES";
- 
+    
     public static void encrypt(String key, File inputFile, File outputFile)
             throws FileCryptException {
         doCrypto(Cipher.ENCRYPT_MODE, key, inputFile, outputFile);
