@@ -67,7 +67,23 @@ public class Server extends Thread
                     messageString = messageString.trim();
                     
                     //handle recieved message accordingly
-                    if (messageString.startsWith("msg:")) {
+                    if (messageString.startsWith("dmsg:")) {
+                        //check if in verified users
+                        
+                        //remove prefix
+                        messageString = messageString.replace("dmsg:", "");
+                        
+                        if (messageString.equals("null")) {
+                            //is recieved when the socket closes on the clients end without notice?
+                        }
+                        else {
+                            //chat message
+                            System.out.println("\n\n"+address.getHostName()+" ("+address.getHostAddress()+")"+" direct messaged: " + messageString);
+                        }
+                        _client.promptUserInput();
+                        
+                    }
+                    else if (messageString.startsWith("msg:")) {
                         //check if in verified users
                         
                         //remove prefix

@@ -46,15 +46,16 @@ public class Program
        System.out.println("== Using TCP Port "+tcpport+" for File Transfers ==");
        System.out.println("== Using Key "+authKey+" for Authentication Security ==");
        
-       System.out.println("\n== To view known chat hosts, type <HOSTS> ==\n");
-       System.out.println("== To leave the chat room and exit the program, type <BYE> ==\n");
+       System.out.println("\n== To view known chat hosts, type '<HOSTS>' ==\n");
+       System.out.println("== To direct message, type in format '@IP Message' ==\n");
+       System.out.println("== To leave the chat room and exit the program, type '<BYE>' ==\n");
        
        
        System.out.println("\n--- Created By Blake and Daniel --- \n");
        
        //start all the relative client and server threads for the chat.
        startThreads();
-       fileServerCode();
+       //fileServerCode();
     }
     
     private static void startThreads() {

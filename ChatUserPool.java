@@ -52,6 +52,10 @@ public class ChatUserPool extends Thread
        }
    }
    
+   public Boolean isAuthenticatedUser(String host) {
+       return _validHosts.contains(host);
+   }
+   
    public Boolean addAuthenticatedUser(String host) {
        //manual add a host to the validHosts list
        //used for the Server when it recieves an authenticate request and it gets accepted to add the user
@@ -144,7 +148,7 @@ public class ChatUserPool extends Thread
        return result;
    }
    
-   private void updateList() {
+   public void updateList() {
        List<String> activeHosts = getActiveHosts();
        
        List<String> validHosts = new ArrayList<String>();

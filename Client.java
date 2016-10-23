@@ -23,12 +23,20 @@ public class Client extends Thread
     
     
     private void sendMessage(String address, String message) {
-        //append so server knows how to handle.
-        if (!message.equals("<BYE>")) {
-            if (!message.equals("<LEFTCHAT>")) {
-                message = "msg:" + message;
+        //needs to know how to handle the message
+        
+        //is it a direct message?
+        if (!message.startsWith("dmsg:")) {
+            //is it a bye message?
+            if (!message.equals("<BYE>")) {
+                //is it a left chat message?
+                if (!message.equals("<LEFTCHAT>")) {
+                    //if none of those, send it as a regular message.
+                    message = "msg:" + message;
+                }
             }
         }
+        
         
         //convert the message string into bytes to be transferred with the datagram.
         byte[] messageBytes = message.getBytes();
@@ -55,14 +63,44 @@ public class Client extends Thread
             //close the application
             System.err.println("You have left the chat room");
             
-            //shutdown hook should do its job of letting users know
+            //shutdown hook should do its job of letting users know its leaving
             
             System.exit(0);
         }
         
     }
     
+    private void directMessage(String message) {
+        //example: @192.1.1.1 message
+        //handle a message going to an individual host.
+                    
+        String toSplit = message.replace("@", "");
+        String[] split = toSplit.split(" ");
+        String ip = split[0];
+        String extractMessage = split[1];
+                    
+        //System.out.println("IP: "+ip);
+        //System.out.println("Message: "+extractMessage);
+        //check if valid user
+        if (_userPool.isAuthenticatedUser(ip)) {
+             //System.out.println("VALID");
+             
+             //prepare message
+             String directMessage = "dmsg:"+extractMessage;
+             
+             //send the message to only that user.
+             sendMessage(ip, directMessage);
+             
+             System.out.println("Direct messaged: "+ip+"!");
+        } 
+        else {
+             System.out.println("Sorry, cannot direct message to "+ip+", it is not a known chat host");
+        }
+    }
+    
+    
     public void leaveChat() {
+        //let all hosts know you have left the chat.
         broadcastMessage("<LEFTCHAT>");
     }
     
@@ -76,11 +114,18 @@ public class Client extends Thread
             try {
                 promptUserInput();
                 message = reader.readLine();
-                if (!message.equals("<HOSTS>")) {
-                    broadcastMessage(message);
+                if (message.startsWith("@")) {
+                    directMessage(message);
+                }
+                else if (message.equals("<HOSTS>")) {
+                    _userPool.printValidHosts();
+                }
+                else if (message.equals("<REFRESH>")) {
+                    System.out.println("\nForced refresh of chat users...\n");
+                    _userPool.updateList();
                 }
                 else {
-                    _userPool.printValidHosts();
+                    broadcastMessage(message);
                 }
             }
             catch (IOException e) {
