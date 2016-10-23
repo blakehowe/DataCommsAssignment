@@ -54,6 +54,7 @@ public class Program
        
        //start all the relative client and server threads for the chat.
        startThreads();
+       fileServerCode();
     }
     
     private static void startThreads() {

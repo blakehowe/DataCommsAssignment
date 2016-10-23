@@ -9,16 +9,20 @@ import java.io.*;
    
 public class FileSender extends Thread {  
 
-    private Socket _tcpSocket;
+    public Socket _tcpSocket;
     String file = "SnakeRiver";
 
     public FileSender(Socket socket) {
         _tcpSocket = socket;
     }
-	
+
     public void run () {
+        SendFile();
+    }
+
+    public void SendFile () {
         try {
-   		   //Send file  
+           //Send file  
             File myFile = new File(file);  
             //creates an array of byte to store the file which will be sent in the data output stream.
             byte[] mybytearray = new byte[(int) myFile.length()];  

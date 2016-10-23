@@ -9,14 +9,18 @@ import java.io.*;
      
 public class FileServer extends Thread {  
 
-    private ServerSocket _tcpServerSocket;
+    public ServerSocket _tcpServerSocket;
     int bytesRead; 
 
     public FileServer(ServerSocket socket) {
         _tcpServerSocket = socket;
     }
-    
+
     public void run() {
+        ReceiveFile();
+    }
+    
+    public void ReceiveFile() {
         try {
             while(true) {  
                 Socket clientSocket = null;  
@@ -52,6 +56,6 @@ public class FileServer extends Thread {
         catch(Exception e) 
         {
             System.out.println("Server unable to receive file.");
-        }  
+        }
     }
 }
