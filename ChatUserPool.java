@@ -10,6 +10,7 @@ import java.net.*;
 public class ChatUserPool extends Thread
 {
    private List<String> _validHosts;
+   private HashMap<String,String> _nameCache;
    
    //the refresh interval of checking
    private int _refreshMs;
@@ -20,6 +21,8 @@ public class ChatUserPool extends Thread
        _refreshMs = refreshMs;
        _authKey = authKey;
        _socket = socket;
+       
+       _nameCache = new HashMap<String, String>();
        
        updateList();
    }
@@ -32,7 +35,9 @@ public class ChatUserPool extends Thread
        if (_validHosts.size() > 0) {
            System.out.println("You have joined a chat room with the following hosts:");
            for (String host : _validHosts) {
-           System.out.println("   > " + host);
+               //name from cache
+               String hostName = _nameCache.get(host);
+               System.out.println("   > " + host + " (" + hostName + ")");
            }
        } else {
            System.out.println("> You are lonely in this chat room :-( < ");
@@ -197,10 +202,13 @@ public class ChatUserPool extends Thread
            String host=subnet + "." + i;
            //System.out.println(host);
            try {
-            if (InetAddress.getByName(host).isReachable(timeout)){
+            InetAddress address = InetAddress.getByName(host);
+            if (address.isReachable(timeout)){
                //System.out.println(host + " is reachable");
                
-               //TODO: VALIDATE HOST IS USING THE SAME APPLICATION? UNIQUE STRING?
+               //add name to cache
+               _nameCache.put(host, address.getHostName());
+               
                newHosts.add(host);
             }
            } catch (Exception e) {
