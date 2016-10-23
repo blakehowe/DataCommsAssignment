@@ -53,7 +53,19 @@ public class FileSender extends Thread {
                 //can get name from the file object?
 
                 //send the file requested to the client
-                File fileData = new File(_filename);
+                
+                
+                File toEncrypt = new File(_filename);
+                File fileData = new File(_filename+".encrypted");
+                
+                try {
+                    //encrypt the file.
+                    FileCryptography.encrypt("Vr itmud Hv zLXN", toEncrypt, fileData);
+                } catch (FileCryptException ex) {
+                    System.out.println(ex.getMessage());
+                    ex.printStackTrace();
+                }
+                
                 byte[] databytearray = new byte[(int) fileData.length()];
 
                 FileInputStream fis = new FileInputStream(fileData);

@@ -1,0 +1,6 @@
+#BlueJ class context
+comment0.params=
+comment0.target=FileCryptException()
+comment1.params=message\ throwable
+comment1.target=FileCryptException(java.lang.String,\ java.lang.Throwable)
+numComments=2

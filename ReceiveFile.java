@@ -34,7 +34,7 @@ public class ReceiveFile extends Thread
                 dir.mkdir();
                 
                 //creates output stream and passes in command line argument 'fileName'    
-                OutputStream fileStream = new FileOutputStream("FilesReceived/"+fileName);
+                OutputStream fileStream = new FileOutputStream("FilesReceived/"+fileName+".encrypted");
                 
                 //read the data to the output stream
                 byte[] buffer = new byte[1024];
@@ -45,6 +45,14 @@ public class ReceiveFile extends Thread
                 // Closing the FileOutputStream and Socket
                 clientData.close();
                 fileStream.close();
+                
+                //decrypt the file now that is received
+                File toDecrypt = new File("FilesReceived/"+fileName+".encrypted");
+                File decrypted = new File("FilesReceived/"+fileName);
+                FileCryptography.decrypt("Vr itmud Hv zLXN", toDecrypt, decrypted);
+                
+                //delete encrypted file
+                toDecrypt.delete();
                 
                 System.out.println("\n\n" + hostName + " (" + ipAddress + ") has sent you a file: " + fileName);
         }
